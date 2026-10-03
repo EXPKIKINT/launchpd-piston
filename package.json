@@ -1,4 +1,9 @@
 {
+    "name": "piston-prebaked",
+    "version": "1.0.0",
+    "description": "Batteries-included, production-ready Piston code execution engine with pre-installed language runtimes",
+    "author": "EXPKIKINT",
+    "license": "MIT",
     "devDependencies": {
         "prettier": "2.4.1"
     }
