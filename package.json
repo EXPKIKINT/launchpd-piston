@@ -1,7 +1,7 @@
 {
-    "name": "piston-prebaked",
+    "name": "piston-swarm",
     "version": "1.0.0",
-    "description": "Batteries-included, production-ready Piston code execution engine with pre-installed language runtimes",
+    "description": "Batteries-included, production-ready Piston code execution engine and worker fleet with pre-installed language runtimes",
     "author": "EXPKIKINT",
     "license": "MIT",
     "devDependencies": {

@@ -1,23 +1,23 @@
-# Piston Prebaked
+# Piston Swarm
 
-[![Docker Publish](https://github.com/EXPKIKINT/piston-prebaked/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/EXPKIKINT/piston-prebaked/actions/workflows/docker-publish.yml)
+[![Docker Publish](https://github.com/EXPKIKINT/piston-swarm/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/EXPKIKINT/piston-swarm/actions/workflows/docker-publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Piston API](https://img.shields.io/badge/Piston-v2-orange)](https://github.com/engineer-man/piston)
 
-**Piston Prebaked** is a production-ready, batteries-included container image for the [Piston](https://github.com/engineer-man/piston) code execution engine with essential language runtimes and compilers pre-compiled directly into the container filesystem layer.
+**Piston Swarm** is a production-ready, batteries-included container image for the [Piston](https://github.com/engineer-man/piston) code execution engine with essential language runtimes and compilers pre-compiled directly into the container filesystem layer.
 
 Designed for self-hosters, cloud platforms ([Coolify](https://coolify.io), Docker Compose, Kubernetes), and educational IDE platforms like **LaunchPD Classroom**.
 
 ---
 
-## Why Piston Prebaked?
+## Why Piston Swarm?
 
 Standard Piston requires downloading and extracting language packages dynamically at runtime or mounting host volumes (`/piston/packages`). On low-spec VPS hosts (e.g., 1–2 GB RAM instances) or ephemeral containers, building compilers during deployment consumes 100% CPU, exhausts disk snapshots, and triggers `no space left on device` or kernel OOM errors.
 
-**Piston Prebaked solves this:**
+**Piston Swarm solves this:**
 * **Zero Post-Deployment Setup**: Compilers are built off-host via GitHub Actions CI and baked directly into `/piston/packages`.
 * **Instant Cold Starts**: Start the container and execute code immediately without manual `ppman install` commands.
-* **No Host Volume Dependencies**: Completely self-contained container layer—ideal for multi-node deployments and stateless horizontal scaling.
+* **No Host Volume Dependencies**: Completely self-contained container layer—ideal for multi-node deployments, horizontal worker pools, and stateless execution fleets.
 
 ---
 
@@ -41,12 +41,12 @@ Standard Piston requires downloading and extracting language packages dynamicall
 ```bash
 docker run -d \
   -p 2000:2000 \
-  --name piston-prebaked \
+  --name piston-swarm \
   --privileged \
   -e PISTON_BIND_ADDRESS="0.0.0.0:2000" \
   -e PISTON_API_KEY="your-secret-api-key" \
   -e PISTON_DISABLE_NETWORKING="true" \
-  ghcr.io/expkikint/piston-prebaked:latest
+  ghcr.io/expkikint/piston-swarm:latest
 ```
 
 > [!IMPORTANT]
@@ -80,7 +80,7 @@ version: '3.8'
 
 services:
   piston:
-    image: ghcr.io/expkikint/piston-prebaked:latest
+    image: ghcr.io/expkikint/piston-swarm:latest
     container_name: piston_worker
     restart: always
     privileged: true
@@ -123,7 +123,7 @@ services:
 
 ### Deploying on Coolify
 1. In your Coolify dashboard, select **+ Add New Resource** -> **Docker Compose** (or **Docker Image**).
-2. Set image to `ghcr.io/expkikint/piston-prebaked:latest`.
+2. Set image to `ghcr.io/expkikint/piston-swarm:latest`.
 3. In **Environment Variables**, set:
    ```env
    PISTON_API_KEY=<your-secret-api-key>
@@ -157,7 +157,7 @@ curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker ubuntu
 newgrp docker
 
-# 2. Run Piston Prebaked Container
+# 2. Run Piston Swarm Container
 docker run -d \
   --name piston_worker \
   --restart always \
@@ -166,7 +166,7 @@ docker run -d \
   -e PISTON_BIND_ADDRESS="0.0.0.0:2000" \
   -e PISTON_API_KEY="your-secret-api-key" \
   -e PISTON_DISABLE_NETWORKING="true" \
-  ghcr.io/expkikint/piston-prebaked:latest
+  ghcr.io/expkikint/piston-swarm:latest
 ```
 
 ---
@@ -201,7 +201,7 @@ curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker ubuntu
 newgrp docker
 
-# Run Piston Prebaked
+# Run Piston Swarm
 docker run -d \
   --name piston_worker \
   --restart always \
@@ -210,7 +210,7 @@ docker run -d \
   -e PISTON_BIND_ADDRESS="0.0.0.0:2000" \
   -e PISTON_API_KEY="your-secret-api-key" \
   -e PISTON_DISABLE_NETWORKING="true" \
-  ghcr.io/expkikint/piston-prebaked:latest
+  ghcr.io/expkikint/piston-swarm:latest
 ```
 
 ---
@@ -249,7 +249,7 @@ curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
 newgrp docker
 
-# 2. Run Piston Prebaked Container
+# 2. Run Piston Swarm Container
 docker run -d \
   --name piston_worker \
   --restart always \
@@ -258,7 +258,7 @@ docker run -d \
   -e PISTON_BIND_ADDRESS="0.0.0.0:2000" \
   -e PISTON_API_KEY="your-secret-api-key" \
   -e PISTON_DISABLE_NETWORKING="true" \
-  ghcr.io/expkikint/piston-prebaked:latest
+  ghcr.io/expkikint/piston-swarm:latest
 ```
 
 ---
@@ -309,10 +309,10 @@ docker build -t my-custom-piston:latest .
 ## Automated CI/CD (GitHub Actions)
 
 This repository includes [.github/workflows/docker-publish.yml](.github/workflows/docker-publish.yml).
-Whenever changes are pushed to `main`, GitHub Actions automatically builds the Docker image and publishes it to GitHub Container Registry (`ghcr.io/<your-username>/piston-prebaked`).
+Whenever changes are pushed to `main`, GitHub Actions automatically builds the Docker image and publishes it to GitHub Container Registry (`ghcr.io/<your-username>/piston-swarm`).
 
 To make the image publicly pullable without authentication:
-1. Go to your GitHub profile -> **Packages** -> select `piston-prebaked`.
+1. Go to your GitHub profile -> **Packages** -> select `piston-swarm`.
 2. Click **Package settings** -> **Danger Zone** -> **Change package visibility** -> **Public**.
 
 ---
