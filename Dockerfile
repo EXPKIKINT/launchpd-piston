@@ -1,14 +1,18 @@
 FROM ghcr.io/engineer-man/piston:latest
 
-# Pre-install core runtime packages so they persist on ephemeral container hosts (e.g. SnapDeploy, Coolify)
-RUN node /piston/cli/index.js ppman install python && \
-    node /piston/cli/index.js ppman install nodejs && \
-    node /piston/cli/index.js ppman install gcc && \
-    node /piston/cli/index.js ppman install java && \
-    node /piston/cli/index.js ppman install go && \
-    node /piston/cli/index.js ppman install rust
+# Ensure piston packages root directory exists
+RUN mkdir -p /piston/packages
 
-EXPOSE 3000
+# Copy installer script into API directory (where dependencies reside)
+WORKDIR /piston_api
+COPY install-runtimes.js ./
 
-ENV PORT="3000"
-ENV PISTON_BIND_ADDRESS="0.0.0.0:3000"
+# Pre-install core runtime packages directly into container layer during build
+RUN node install-runtimes.js && rm -f install-runtimes.js
+
+# Expose standard Piston port 2000
+EXPOSE 2000
+
+ENV PORT="2000"
+ENV PISTON_BIND_ADDRESS="0.0.0.0:2000"
+

@@ -50,9 +50,14 @@ docker run -d \
    ```yaml
    privileged: true
    ```
-6. Deploy. Use the generated internal/external URL in your LaunchPD backend configuration:
+6. Set the shared secret in Environment Variables:
    ```env
-   PISTON_NODES=https://piston-node1.yourdomain.com/api/v2,https://piston-node2.yourdomain.com/api/v2
+   PISTON_API_KEY=<your-secure-random-token>
+   ```
+7. Deploy. Use the generated internal/external URL in your LaunchPD backend configuration:
+   ```env
+   PISTON_URLS="http://<piston-worker1-ip>:2000,http://<piston-worker2-ip>:2000"
+   PISTON_API_KEY="<your-secure-random-token>"
    ```
 
 ### Deploy on SnapDeploy
