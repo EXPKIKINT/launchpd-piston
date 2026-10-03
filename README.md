@@ -132,6 +132,137 @@ services:
 
 ---
 
+## Cloud Provider Deployment Guides
+
+Deploying Piston on standalone cloud virtual machines (VMs) requires two essentials:
+1. Running the container with **`--privileged`** (enables Piston's Linux `isolate` user namespaces and cgroup sandbox).
+2. **Locking Port `2000`** in the cloud firewall strictly to your backend application's IP (`<BACKEND_SERVER_IP>/32`).
+
+---
+
+### 1. Amazon Web Services (AWS EC2)
+
+#### Step 1: Security Group Configuration
+1. Open **EC2 Console** -> **Security Groups** -> select or create your instance security group.
+2. Under **Inbound rules**, add:
+   * **SSH**: Port `22`, Source `My IP`.
+   * **Piston API**: Type `Custom TCP`, Port `2000`, Source `<BACKEND_SERVER_IP>/32` (strictly your backend server).
+
+#### Step 2: Provision & Launch Container
+SSH into your EC2 instance (`ssh -i key.pem ubuntu@<EC2_PUBLIC_IP>`):
+
+```bash
+# 1. Install Docker (if not already installed)
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker ubuntu
+newgrp docker
+
+# 2. Run Piston Prebaked Container
+docker run -d \
+  --name piston_worker \
+  --restart always \
+  --privileged \
+  -p 2000:2000 \
+  -e PISTON_BIND_ADDRESS="0.0.0.0:2000" \
+  -e PISTON_API_KEY="your-secret-api-key" \
+  -e PISTON_DISABLE_NETWORKING="true" \
+  ghcr.io/expkikint/piston-prebaked:latest
+```
+
+---
+
+### 2. Oracle Cloud Infrastructure (OCI Compute)
+
+Oracle Cloud provides generous Always Free compute (AMD `VM.Standard.E2.1.Micro` or Ampere `VM.Standard.A1.Flex`).
+
+#### Step 1: VCN Ingress Rule (Cloud Firewall)
+1. Go to **Networking** -> **Virtual Cloud Networks** -> select your VCN -> **Security Lists** -> click default Security List.
+2. Click **Add Ingress Rules**:
+   * **Source Type**: CIDR
+   * **Source CIDR**: `<BACKEND_SERVER_IP>/32`
+   * **IP Protocol**: TCP
+   * **Destination Port Range**: `2000`
+   * **Description**: `Piston API restricted strictly to backend`
+
+#### Step 2: Host OS Firewall (`iptables` / `netfilter-persistent`)
+> [!IMPORTANT]
+> Oracle Cloud Ubuntu instances enforce internal `iptables` drop/reject rules by default. You must open Port 2000 in the host OS firewall:
+
+```bash
+# Allow Port 2000 from Backend IP in host iptables
+sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 2000 -s <BACKEND_SERVER_IP> -j ACCEPT
+sudo netfilter-persistent save
+```
+
+#### Step 3: Launch Container
+```bash
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker ubuntu
+newgrp docker
+
+# Run Piston Prebaked
+docker run -d \
+  --name piston_worker \
+  --restart always \
+  --privileged \
+  -p 2000:2000 \
+  -e PISTON_BIND_ADDRESS="0.0.0.0:2000" \
+  -e PISTON_API_KEY="your-secret-api-key" \
+  -e PISTON_DISABLE_NETWORKING="true" \
+  ghcr.io/expkikint/piston-prebaked:latest
+```
+
+---
+
+### 3. Google Cloud Platform (GCP Compute Engine)
+
+#### Step 1: VPC Firewall Rule
+Create a firewall rule restricting Port 2000 ingress strictly to your backend IP:
+
+**Via `gcloud` CLI:**
+```bash
+gcloud compute firewall-rules create allow-piston-worker \
+  --direction=INGRESS \
+  --priority=1000 \
+  --network=default \
+  --action=ALLOW \
+  --rules=tcp:2000 \
+  --source-ranges="<BACKEND_SERVER_IP>/32" \
+  --target-tags=piston-worker
+```
+
+**Or via Google Cloud Console:**
+1. Navigate to **VPC network** -> **Firewall** -> **Create Firewall Rule**.
+2. **Name**: `allow-piston-worker`.
+3. **Targets**: Specified target tags (`piston-worker`).
+4. **Source IPv4 ranges**: `<BACKEND_SERVER_IP>/32`.
+5. **Protocols and ports**: Check **TCP** -> enter `2000`.
+
+#### Step 2: Launch Compute Instance & Container
+When launching the Compute Engine VM (e.g. `e2-micro` or `e2-medium` with Ubuntu 22.04 / 24.04 LTS):
+1. In VM settings -> **Networking** -> add Network tag: `piston-worker`.
+2. SSH into the VM:
+```bash
+# 1. Install Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
+
+# 2. Run Piston Prebaked Container
+docker run -d \
+  --name piston_worker \
+  --restart always \
+  --privileged \
+  -p 2000:2000 \
+  -e PISTON_BIND_ADDRESS="0.0.0.0:2000" \
+  -e PISTON_API_KEY="your-secret-api-key" \
+  -e PISTON_DISABLE_NETWORKING="true" \
+  ghcr.io/expkikint/piston-prebaked:latest
+```
+
+---
+
 ## Security Best Practices
 
 > [!CRITICAL]
