@@ -1,7 +1,10 @@
 FROM ghcr.io/engineer-man/piston:latest
 
-# Ensure piston packages root directory exists
-RUN mkdir -p /piston/packages
+# Ensure piston packages root directory exists and install healthcheck utilities
+RUN mkdir -p /piston/packages && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends curl wget && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy installer script into API directory (where dependencies reside)
 WORKDIR /piston_api
