@@ -6,6 +6,8 @@
  */
 
 require('nocamel');
+const path = require('path');
+const fss = require('fs');
 const Package = require('/piston_api/src/package');
 
 // Core runtimes matching Piston's official package repository slugs:
@@ -33,6 +35,14 @@ const RUNTIMES = [
 
         console.log(`[launchpd-piston] Downloading and unpacking ${pkg.language} (${pkg.version.raw})...`);
         await pkg.install();
+
+        // Clean up downloaded archive immediately to save disk space
+        const pkgTar = path.join(pkg.install_path, 'pkg.tar.gz');
+        if (fss.existsSync(pkgTar)) {
+            fss.unlinkSync(pkgTar);
+            console.log(`[launchpd-piston] Removed archive ${pkgTar}`);
+        }
+
         console.log(`[launchpd-piston] ✓ Installed ${pkg.language} (${pkg.version.raw})`);
     }
 
