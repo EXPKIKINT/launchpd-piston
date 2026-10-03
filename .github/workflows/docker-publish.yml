@@ -1,4 +1,4 @@
-name: Build and Publish Piston Docker Image
+name: Build and Publish Piston Swarm Docker Image
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     paths:
       - 'Dockerfile'
       - 'install-runtimes.js'
-      - '.github/workflows/docker-publish.yml'
+      - 'package.json'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 jobs:
