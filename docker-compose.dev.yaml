@@ -1,0 +1,34 @@
+version: '3.2'
+
+services:
+    api:
+        build: api
+        container_name: piston_api
+        privileged: true
+        restart: always
+        ports:
+            - '127.0.0.1:2000:2000'
+        volumes:
+            - ./data/piston/packages:/piston/packages
+        environment:
+            - PISTON_API_KEY=${PISTON_API_KEY:-dev-piston-api-key-change-me}
+            - PISTON_REPO_URL=http://repo:8000/index
+            - PISTON_DISABLE_NETWORKING=true
+            - PISTON_RUN_MEMORY_LIMIT=268435456
+            - PISTON_COMPILE_MEMORY_LIMIT=536870912
+            - PISTON_MAX_CONCURRENT_JOBS=16
+        networks:
+            - piston-dev
+
+    repo: # Local testing of packages
+        build: repo
+        container_name: piston_repo
+        command: ['--no-build'] # Don't build anything
+        volumes:
+            - .:/piston
+        networks:
+            - piston-dev
+
+networks:
+    piston-dev:
+        driver: bridge

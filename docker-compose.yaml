@@ -1,0 +1,53 @@
+version: '3.2'
+
+services:
+    api:
+        image: ghcr.io/engineer-man/piston
+        container_name: piston_api
+        restart: always
+        privileged: true
+        # Do NOT expose port to host — only reachable via Docker network
+        expose:
+            - "2000"
+        environment:
+            - PISTON_API_KEY=${PISTON_API_KEY:?PISTON_API_KEY must be set}
+            - PISTON_DISABLE_NETWORKING=true
+            - PISTON_OUTPUT_MAX_SIZE=65536
+            - PISTON_MAX_PROCESS_COUNT=32
+            - PISTON_MAX_OPEN_FILES=1024
+            - PISTON_MAX_FILE_SIZE=5000000
+            - PISTON_RUN_TIMEOUT=10000
+            - PISTON_RUN_CPU_TIME=5000
+            - PISTON_COMPILE_TIMEOUT=15000
+            - PISTON_COMPILE_CPU_TIME=10000
+            - PISTON_RUN_MEMORY_LIMIT=268435456
+            - PISTON_COMPILE_MEMORY_LIMIT=536870912
+            - PISTON_MAX_CONCURRENT_JOBS=16
+        volumes:
+            - ./data/piston/packages:/piston/packages
+        tmpfs:
+            - /tmp:exec,size=256m
+        security_opt:
+            - no-new-privileges:true
+        read_only: false
+        deploy:
+            resources:
+                limits:
+                    cpus: '2.0'
+                    memory: 1G
+                reservations:
+                    cpus: '0.5'
+                    memory: 256M
+        networks:
+            - piston-internal
+        healthcheck:
+            test: ["CMD-SHELL", "wget -q --spider http://localhost:2000/ || exit 1"]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 10s
+
+networks:
+    piston-internal:
+        driver: bridge
+        internal: true
