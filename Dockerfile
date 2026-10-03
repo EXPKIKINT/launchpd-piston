@@ -16,3 +16,7 @@ EXPOSE 2000
 ENV PORT="2000"
 ENV PISTON_BIND_ADDRESS="0.0.0.0:2000"
 
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:2000/', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+
