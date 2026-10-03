@@ -1,4 +1,4 @@
-# launchpd-piston
+# piston-swarm
 
 Production-ready, pre-baked [Piston](https://github.com/engineer-man/piston) code execution engine tailored for **LaunchPD Classroom IDE**.
 
