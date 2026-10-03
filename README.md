@@ -43,7 +43,7 @@ docker run -d \
 
 ### Deploy on Coolify
 1. In your Coolify dashboard, select **New Project** -> **From Git Repository**.
-2. Connect `https://github.com/kents00/launchpd-piston.git` (branch `main`).
+2. Connect `https://github.com/EXPKIKINT/launchpd-piston.git` (branch `main`).
 3. Set **Build Pack** to **Dockerfile**.
 4. Set **Port Exposes** to `2000`.
 5. Under container settings / compose options, ensure privileged mode is enabled:
@@ -56,7 +56,7 @@ docker run -d \
    ```
 
 ### Deploy on SnapDeploy
-1. Connect this GitHub repository (`kents00/launchpd-piston`) to SnapDeploy.
+1. Connect this GitHub repository (`EXPKIKINT/launchpd-piston`) to SnapDeploy.
 2. Select **Dockerfile** as the build configuration.
 3. Configure the public or private service port as `2000`.
 4. Deploy the service and link the resulting endpoint to LaunchPD backend.
