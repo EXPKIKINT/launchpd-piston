@@ -8,6 +8,6 @@ RUN node /piston/cli/index.js ppman install python && \
     node /piston/cli/index.js ppman install go && \
     node /piston/cli/index.js ppman install rust
 
-EXPOSE 2000
+EXPOSE 3000
 
-ENV PISTON_BIND_ADDRESS="0.0.0.0:2000"
+ENV PISTON_BIND_ADDRESS="0.0.0.0:3000"
