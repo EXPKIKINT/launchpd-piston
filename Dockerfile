@@ -1,10 +1,12 @@
 FROM ghcr.io/engineer-man/piston:latest
 
-# Ensure piston packages root directory exists and install healthcheck utilities
-RUN mkdir -p /piston/packages && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends curl wget && \
-    rm -rf /var/lib/apt/lists/*
+# Ensure piston packages root directory exists
+RUN mkdir -p /piston/packages
+
+# Provide native curl and wget shims for Coolify healthchecks (avoids EOL Debian Buster apt failures)
+RUN printf '#!/usr/bin/env node\nconst http = require("http");\nconst https = require("https");\nconst urlStr = process.argv.find(a => a.startsWith("http://") || a.startsWith("https://")) || "http://127.0.0.1:2000/";\ntry {\n  const url = new URL(urlStr);\n  const client = url.protocol === "https:" ? https : http;\n  const req = client.get(url, (res) => {\n    process.exit(res.statusCode >= 200 && res.statusCode < 400 ? 0 : 1);\n  });\n  req.on("error", () => process.exit(1));\n  req.setTimeout(4000, () => { req.destroy(); process.exit(1); });\n} catch {\n  process.exit(1);\n}\n' > /usr/local/bin/curl && \
+    chmod +x /usr/local/bin/curl && \
+    ln -sf /usr/local/bin/curl /usr/local/bin/wget
 
 # Copy installer script into API directory (where dependencies reside)
 WORKDIR /piston_api
