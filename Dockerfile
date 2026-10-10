@@ -15,6 +15,11 @@ COPY install-runtimes.js ./
 # Pre-install core runtime packages directly into container layer during build
 RUN node install-runtimes.js && rm -f install-runtimes.js
 
+# Copy patched compiler scripts (fixes multi-file C/C++ builds, header preservation, and Rust multi-file execution)
+COPY packages/gcc/10.2.0/compile /piston/packages/gcc/10.2.0/compile
+COPY packages/rust/1.68.2/compile /piston/packages/rust/1.68.2/compile
+RUN chmod +x /piston/packages/gcc/10.2.0/compile /piston/packages/rust/1.68.2/compile
+
 # Expose standard Piston port 2000
 EXPOSE 2000
 

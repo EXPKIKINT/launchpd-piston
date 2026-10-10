@@ -5,19 +5,29 @@
 
 case "${PISTON_LANGUAGE}" in
     c)
-        rename 's/$/\.c/' "$@" # Add .c extension
+        rename 's/\.code$/\.c/' "$@"
+        for f in "$@"; do
+            if [ -f "$f" ] && [[ "$f" != *.* ]]; then
+                mv "$f" "$f.c"
+            fi
+        done
         gcc -std=c11 *.c -lm
         ;;
     c++)
-        rename 's/$/\.cpp/' "$@" # Add .cpp extension
+        rename 's/\.code$/\.cpp/' "$@"
+        for f in "$@"; do
+            if [ -f "$f" ] && [[ "$f" != *.* ]]; then
+                mv "$f" "$f.cpp"
+            fi
+        done
         g++ -std=c++17 *.cpp
         ;;
     d)
-        rename 's/.code$/\.d/' "$@" # Add .d extension
+        rename 's/\.code$/\.d/' "$@"
         gdc *.d
         ;;
     fortran)
-        rename 's/.code$/\.f90/' "$@" # Add .f90 extension
+        rename 's/\.code$/\.f90/' "$@"
         gfortran *.f90
         ;;
     *)
